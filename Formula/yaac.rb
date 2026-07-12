@@ -1,13 +1,13 @@
 # Source of truth for the bsklaroff/homebrew-yaac tap (see ../README.md for
 # the release/sync flow). Lives in a tap rather than homebrew-core because the
-# macOS path depends on krunkit from the libkrun/krun tap, and core formulas
-# cannot depend on tap formulas.
+# macOS path depends on this tap's own krunkit/libkrun pair (and yaac-kind),
+# and core formulas cannot depend on tap formulas.
 class Yaac < Formula
   desc "Agent sandbox manager - parallel agent sessions on a local Kubernetes cluster"
   homepage "https://github.com/bsklaroff/yaac"
-  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.0.3.tgz"
+  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.0.4.tgz"
   # Recompute on every release: curl -fsSL <url> | shasum -a 256
-  sha256 "e498a741b73583be9a6a2e5f2b1a01db38a104fad2465824e83a369807921927"
+  sha256 "4ca9b7fb1e90114445204122e5e95128572d010a7e6a42002823c08b0c29f850"
   license "MIT"
 
   depends_on "cilium-cli"
@@ -23,9 +23,15 @@ class Yaac < Formula
   on_macos do
     # libkrun is the only macOS virtualization stack whose virtiofs supports
     # idmapped mounts, which user-namespaced session pods writing hostPath
-    # volumes require. libkrun/krunkit are arm64-only.
+    # volumes require — but only under LinuxComplete permission semantics,
+    # which the libkrun/krun tap's krunkit (<= 1.3.x) never selects, so
+    # session pods fail with MOUNT_ATTR_IDMAP EINVAL
+    # (https://github.com/bsklaroff/yaac/issues/27). yaac-krunkit is
+    # upstream krunkit built against the tap's patched yaac-libkrun; both
+    # are temporary carries — see Formula/yaac-krunkit.rb. krunkit/libkrun
+    # are arm64-only.
     depends_on arch: :arm64
-    depends_on "libkrun/krun/krunkit"
+    depends_on "bsklaroff/yaac/yaac-krunkit"
   end
 
   def install
@@ -48,9 +54,6 @@ class Yaac < Formula
       Verify everything with:
 
         yaac cluster check
-
-      If installing krunkit failed on a tap-trust error, run
-      `brew trust libkrun/krun` and retry.
     EOS
   end
 
