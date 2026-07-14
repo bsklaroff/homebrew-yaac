@@ -5,9 +5,9 @@
 class Yaac < Formula
   desc "Agent sandbox manager - parallel agent sessions on a local Kubernetes cluster"
   homepage "https://github.com/bsklaroff/yaac"
-  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.0.4.tgz"
+  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.0.5.tgz"
   # Recompute on every release: curl -fsSL <url> | shasum -a 256
-  sha256 "4ca9b7fb1e90114445204122e5e95128572d010a7e6a42002823c08b0c29f850"
+  sha256 "1ec08a2ee1b80e5473a5a6a5bdd720208b361db97a0b245c0668b049281f87a7"
   license "MIT"
 
   depends_on "cilium-cli"
