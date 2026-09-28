@@ -11,7 +11,7 @@ brew trust bsklaroff/yaac
 brew trust libkrun/krun
 brew tap libkrun/krun
 brew install bsklaroff/yaac/yaac
-yaac cluster setup
+yaac cluster install
 ```
 
 ## Formulas
@@ -21,8 +21,12 @@ yaac cluster setup
   `bin/yaac`. Depends on core `node`, `kubernetes-cli`,
   `podman` (≥ 6.0, already in core), the tap's `yaac-kind`, and — on
   macOS/arm64 — the tap's `yaac-krunkit` (which pulls `yaac-libkrun`).
-  `helm` is not a dependency: yaac downloads a pinned helm on demand
-  (vcluster sessions only).
+  It also carries what the containerless driver needs on the host, since
+  that mode has no session image to supply anything: `tmux` (the worktree
+  supervisor) and `socat` (the ACP chat transport), both of which a create
+  refuses without, plus `fd` and `ripgrep` for the agents' own file search.
+  `git`, `curl` and `lsof` are `uses_from_macos` — provided there, installed
+  on Linux.
 - **`yaac-kind.rb`** — **temporary.** kind built from the pinned kind#4203
   merge commit on `main`, because podman 6.x breaks every kind release
   ≤ v0.32.0 (kind#4201) and v0.33.0 is unreleased. Delete this formula and

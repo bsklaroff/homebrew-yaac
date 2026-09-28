@@ -5,9 +5,9 @@
 class Yaac < Formula
   desc "Agent sandbox manager - parallel agent sessions on a local Kubernetes cluster"
   homepage "https://github.com/bsklaroff/yaac"
-  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.0.6.tgz"
+  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.0.7.tgz"
   # Recompute on every release: curl -fsSL <url> | shasum -a 256
-  sha256 "fd3d7d87320ca25b19e5cf1d59acc4707c08fdce3a86ccae99854f4c19e718f6"
+  sha256 "b397a4308d5f82d6fe4c822cfe6e8a6bfbfb0abf3bb18c652dde163024be8cad"
   license "MIT"
 
   depends_on "kubernetes-cli"
@@ -18,6 +18,27 @@ class Yaac < Formula
   # "kind" and delete yaac-kind once core ships kind >= v0.33.0.
   depends_on "podman"
   depends_on "bsklaroff/yaac/yaac-kind"
+
+  # The containerless driver (`yaac server start`, which is what a host
+  # server is) runs worktrees as host processes, so what a session image would have
+  # supplied has to be on this machine instead. macOS ships none of these.
+  # tmux supervises every worktree and socat carries the ACP chat transport;
+  # `yaac host check` reports both, and a create refuses without them.
+  depends_on "tmux"
+  depends_on "socat"
+  # Agent file-search tools, the same pair the session images carry. Nothing
+  # gates on them: pi downloads its own fd when none is on PATH, and an
+  # agent without ripgrep just searches more slowly.
+  depends_on "fd"
+  depends_on "ripgrep"
+  # Provided by macOS, installed on Linux. git arrives with the Command Line
+  # Tools that installing Homebrew itself requires, so it is here for Linux
+  # and for the record: the containerless driver spawns all three directly
+  # (git for every checkout, curl for the in-session yaac-mama helper, lsof
+  # for port detection).
+  uses_from_macos "curl"
+  uses_from_macos "git"
+  uses_from_macos "lsof"
 
   on_macos do
     # libkrun is the only macOS virtualization stack whose virtiofs can
@@ -43,19 +64,31 @@ class Yaac < Formula
 
   def caveats
     <<~EOS
-      Create the local cluster yaac runs sessions on (podman machine on
-      macOS, local registry, kind cluster, Calico, node fixups):
+      Converge the local cluster yaac runs sessions on (podman machine on
+      macOS, kind cluster, Calico, node fixups, local registry, and every
+      image yaac ships):
 
-        yaac cluster setup
+        yaac cluster install
 
-      The node fixups it applies do not survive a node or VM restart;
-      re-apply them without recreating the cluster:
-
-        yaac cluster setup --repair
+      Safe to re-run at any time, and it is what an upgrade runs: it never
+      recreates a cluster that already exists, and re-applies the node
+      fixups that do not survive a node or VM restart.
 
       Verify everything with:
 
         yaac cluster check
+
+      To run worktrees as host processes instead - no cluster, no image and
+      no sandbox - just start the server and verify the host rather than a
+      cluster. A host server IS the containerless driver; the k8s one runs
+      in the cluster `yaac cluster install` builds:
+
+        yaac server start
+        yaac host check
+
+      That mode has no session image, so install the agent CLI you want to
+      run (claude, codex, opencode, pi) on this machine; `yaac host check`
+      names the commands.
     EOS
   end
 
