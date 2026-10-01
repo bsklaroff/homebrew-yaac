@@ -5,9 +5,9 @@
 class Yaac < Formula
   desc "Agent sandbox manager - parallel agent sessions on a local Kubernetes cluster"
   homepage "https://github.com/bsklaroff/yaac"
-  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.0.8.tgz"
+  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.0.9.tgz"
   # Recompute on every release: curl -fsSL <url> | shasum -a 256
-  sha256 "507fddd9ab6d9bd7609a8f29b240508fecf7f4db2c24344023990768565bd1fd"
+  sha256 "5dd7d121b310ca3452ddb137a9bde076233cf1eb046cc97f42979e7d7f3b29bd"
   license "MIT"
 
   depends_on "kubernetes-cli"
@@ -19,9 +19,9 @@ class Yaac < Formula
   depends_on "podman"
 
   # The containerless driver (`yaac server start`, which is what a host
-  # server is) runs worktrees as host processes, so what a session image would have
+  # server is) runs workspaces as host processes, so what a session image would have
   # supplied has to be on this machine instead. macOS ships none of these.
-  # tmux supervises every worktree and socat carries the ACP chat transport;
+  # tmux supervises every workspace and socat carries the ACP chat transport;
   # `yaac host check` reports both, and a create refuses without them.
   depends_on "tmux"
   depends_on "socat"
@@ -77,7 +77,7 @@ class Yaac < Formula
 
         yaac cluster check
 
-      To run worktrees as host processes instead - no cluster, no image and
+      To run workspaces as host processes instead - no cluster, no image and
       no sandbox - just start the server and verify the host rather than a
       cluster. A host server IS the containerless driver; the k8s one runs
       in the cluster `yaac cluster install` builds:
