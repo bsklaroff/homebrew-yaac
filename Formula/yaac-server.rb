@@ -5,9 +5,9 @@
 class YaacServer < Formula
   desc "Agent sandbox manager - parallel agent sessions on this machine or Kubernetes"
   homepage "https://github.com/bsklaroff/yaac"
-  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.0.tgz"
+  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.1.tgz"
   # Recompute on every release: curl -fsSL <url> | shasum -a 256
-  sha256 "18a10308e1db7f60b4bb154d196f679f82a7b1191fef075e90df0f1ce57d603a"
+  sha256 "c938b63a321e4fc1b623b7e49a99075aed74c0f35406630c0f84ebf9659de188"
   license "MIT"
 
   # The containerless driver (`yaac server start`, which is what a host

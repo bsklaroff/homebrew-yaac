@@ -5,8 +5,8 @@
 class YaacCluster < Formula
   desc "Local Kubernetes cluster tools for the yaac agent sandbox manager"
   homepage "https://github.com/bsklaroff/yaac"
-  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.0.tgz"
-  sha256 "18a10308e1db7f60b4bb154d196f679f82a7b1191fef075e90df0f1ce57d603a"
+  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.1.tgz"
+  sha256 "c938b63a321e4fc1b623b7e49a99075aed74c0f35406630c0f84ebf9659de188"
   license "MIT"
 
   depends_on "bsklaroff/yaac/yaac-server"
@@ -50,13 +50,6 @@ class YaacCluster < Formula
 
       The cluster's server is managed with `yaac cluster start|stop|status`,
       beside the host server's `yaac server …`.
-
-      An install of the old `yaac` formula upgrades to this one, which keeps
-      every tool it had. If you run only the containerless driver
-      (`yaac server start`), keep the CLI and drop the cluster tools with:
-
-        brew install bsklaroff/yaac/yaac-server
-        brew uninstall bsklaroff/yaac/yaac-cluster
     EOS
   end
 
