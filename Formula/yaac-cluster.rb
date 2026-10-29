@@ -5,8 +5,8 @@
 class YaacCluster < Formula
   desc "Local Kubernetes cluster tools for the yaac agent sandbox manager"
   homepage "https://github.com/bsklaroff/yaac"
-  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.1.tgz"
-  sha256 "c938b63a321e4fc1b623b7e49a99075aed74c0f35406630c0f84ebf9659de188"
+  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.2.tgz"
+  sha256 "7a926101ab22a76509701685dd602641cd21a24b8a4f653c5f0dd2d19d564d8b"
   license "MIT"
 
   depends_on "bsklaroff/yaac/yaac-server"

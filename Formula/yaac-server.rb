@@ -5,9 +5,9 @@
 class YaacServer < Formula
   desc "Agent sandbox manager - parallel agent sessions on this machine or Kubernetes"
   homepage "https://github.com/bsklaroff/yaac"
-  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.1.tgz"
+  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.2.tgz"
   # Recompute on every release: curl -fsSL <url> | shasum -a 256
-  sha256 "c938b63a321e4fc1b623b7e49a99075aed74c0f35406630c0f84ebf9659de188"
+  sha256 "7a926101ab22a76509701685dd602641cd21a24b8a4f653c5f0dd2d19d564d8b"
   license "MIT"
 
   # The containerless driver (`yaac server start`, which is what a host
@@ -33,9 +33,17 @@ class YaacServer < Formula
   uses_from_macos "git"
   uses_from_macos "lsof"
 
+  # `npm ci` from the bundle's own lockfile (dist/npm-shrinkwrap.json, which
+  # pins every package to pnpm-lock.yaml's version and integrity hash), so
+  # npm resolves nothing and the install gets exactly what the repo tested.
+  # No install scripts run, as pnpm runs none for these packages.
   def install
-    system "npm", "install", *std_npm_args
-    bin.install_symlink Dir["#{libexec}/bin/*"]
+    libexec.install "dist"
+    cd libexec/"dist" do
+      system "npm", "ci", "--omit=dev", "--ignore-scripts", *std_npm_args(prefix: false)
+    end
+    chmod 0755, libexec/"dist/cli.js"
+    bin.install_symlink libexec/"dist/cli.js" => "yaac"
   end
 
   def caveats
