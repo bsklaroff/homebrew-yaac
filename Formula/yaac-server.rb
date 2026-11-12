@@ -1,13 +1,12 @@
 # Source of truth for the bsklaroff/homebrew-yaac tap (see ../README.md for
 # the release/sync flow). The yaac CLI and server, plus what the containerless
-# driver needs on the host. A local cluster's tools come from yaac-cluster,
-# which keeps the libkrun/krun tap off this install.
+# driver needs on the host. A local cluster's tools come from yaac-cluster.
 class YaacServer < Formula
   desc "Agent sandbox manager - parallel agent sessions on this machine or Kubernetes"
   homepage "https://github.com/bsklaroff/yaac"
-  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.2.tgz"
+  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.3.tgz"
   # Recompute on every release: curl -fsSL <url> | shasum -a 256
-  sha256 "7a926101ab22a76509701685dd602641cd21a24b8a4f653c5f0dd2d19d564d8b"
+  sha256 "3aee663bb4ae2e04270133f8bb1b07849b1e7cfa18997922a6102ff165276b76"
   license "MIT"
 
   # The containerless driver (`yaac server start`, which is what a host
@@ -61,8 +60,6 @@ class YaacServer < Formula
       To run a local Kubernetes cluster as well (it keeps its own data
       dir, ~/.yaac-cluster), install its tools:
 
-        brew trust libkrun/krun
-        brew tap libkrun/krun
         brew install bsklaroff/yaac/yaac-cluster
         yaac cluster install
     EOS

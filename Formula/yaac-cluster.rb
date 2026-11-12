@@ -5,8 +5,8 @@
 class YaacCluster < Formula
   desc "Local Kubernetes cluster tools for the yaac agent sandbox manager"
   homepage "https://github.com/bsklaroff/yaac"
-  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.2.tgz"
-  sha256 "7a926101ab22a76509701685dd602641cd21a24b8a4f653c5f0dd2d19d564d8b"
+  url "https://registry.npmjs.org/@bsklaroff/yaac/-/yaac-0.1.3.tgz"
+  sha256 "3aee663bb4ae2e04270133f8bb1b07849b1e7cfa18997922a6102ff165276b76"
   license "MIT"
 
   depends_on "bsklaroff/yaac/yaac-server"
@@ -18,12 +18,11 @@ class YaacCluster < Formula
   depends_on "podman"
 
   on_macos do
-    # The podman machine runs on the tap's patched krunkit, the only macOS
-    # VM stack whose virtiofs reports real file ownership to gVisor session
-    # pods (see Formula/yaac-krunkit.rb and "macOS: the podman machine" in
-    # docs/cluster-setup.md). krunkit/libkrun are arm64-only.
+    # The podman machine runs on krunkit, the macOS VM stack whose virtiofs
+    # can report real file ownership to gVisor session pods ("macOS: the
+    # podman machine" in docs/cluster-setup.md). krunkit is arm64-only.
     depends_on arch: :arm64
-    depends_on "bsklaroff/yaac/yaac-krunkit"
+    depends_on "krunkit"
   end
 
   def install

@@ -7,40 +7,43 @@ so packaging changes are reviewed with the code they package.
 End-user install (macOS, arm64):
 
 ```sh
-brew trust bsklaroff/yaac
-brew install --cask bsklaroff/yaac/yaac-desktop   # the app + yaac-server
+brew install --cask bsklaroff/yaac/yaac-desktop   # the app alone
 
-# Or the CLI alone:
+# The CLI, for a containerless server:
 brew install bsklaroff/yaac/yaac-server
-yaac server start && yaac host check   # containerless
+yaac server start && yaac host check
 
-# For a local Kubernetes cluster:
-brew trust libkrun/krun
-brew tap libkrun/krun
-brew install bsklaroff/yaac/yaac-cluster
+# The CLI and a local Kubernetes cluster's tools:
+brew install bsklaroff/yaac/yaac-server bsklaroff/yaac/yaac-cluster
 yaac cluster install
 ```
 
-The cask depends on the tap's `yaac-server`, so the tap itself must be
-trusted: Homebrew 6 trusts only the named item when installing a fully
-qualified name, not the tap formulas it depends on.
+None of these needs `brew trust bsklaroff/yaac`. Since Homebrew 6, an
+`install` that names an item fully qualified trusts that item for good
+(recorded in Homebrew's `trust.json`, so `brew upgrade` keeps moving it),
+but a tap formula it depends on must already be trusted. So the cask depends
+on no formula here, and `yaac-cluster`, which depends on `yaac-server`, is
+installed with `yaac-server` named too, unless an earlier install named it.
+The app's own setups (packages/desktop/README.md, "Setup") run these same
+commands.
 
-The `.dmg` on the GitHub Release can also be dragged into `/Applications`
-without brew. The app in it is notarized, so it opens, and it works fully as a client of
-a remote server, setting up a server on this Mac through Homebrew when asked.
-It gets no CLI until then, and nothing updates it. Mixing it with the cask
-leaves brew's record stale: `brew install --cask` refuses over a hand-installed
-app until given `--force`, and a hand install over the cask is replaced by the
-next newer tap version or removed by `brew uninstall --cask`.
+The app works fully as a client of a remote server without the CLI, and
+sets up a server on this Mac through Homebrew when asked. The `.dmg` on the
+GitHub Release can also be dragged into `/Applications` without brew: the
+app in it is notarized, so it opens, but nothing updates it. Mixing it with
+the cask leaves brew's record stale: `brew install --cask` refuses over a
+hand-installed app until given `--force`, and a hand install over the cask is
+replaced by the next newer tap version or removed by `brew uninstall --cask`.
 
 ## Packages
 
 - **`Casks/yaac-desktop.rb`** installs the signed, notarized `yaac.app` from
-  the `.dmg` on the `v<version>` GitHub Release. It depends on `yaac-server`,
-  whose CLI the app runs for any server on this Mac, so the server code has
-  one copy. It has no `auto_updates` and the app has no updater:
-  `brew upgrade` moves the app and the formula together. Its `zap` trashes
-  only the app's own support dir and preferences, never a server's data dir.
+  the `.dmg` on the `v<version>` GitHub Release. The app runs the
+  `yaac-server` formula's CLI for any server on this Mac, so the server code
+  has one copy, but the cask does not depend on it (see above). It has no
+  `auto_updates` and the app has no updater: `brew upgrade` moves it, and
+  the formulas with it. Its `zap` trashes only the app's own support dir and
+  preferences, never a server's data dir.
 
 - **`Formula/yaac-server.rb`** installs the published npm tarball (`@bsklaroff/yaac`;
   the unscoped `yaac` name was taken) into `libexec` and links `bin/yaac`.
@@ -54,41 +57,37 @@ next newer tap version or removed by `brew uninstall --cask`.
     plus `fd` and `ripgrep` for the agents' file search.
   - `git`, `curl` and `lsof` are `uses_from_macos`: provided by macOS,
     installed on Linux.
-  - It has no tap dependencies, so it installs without the `libkrun/krun`
-    tap.
 - **`Formula/yaac-cluster.rb`** installs nothing of its own. It depends on
   `yaac-server` plus what `yaac cluster install` runs: `kubernetes-cli`,
   `podman` (6.0 or newer), `kind` (v0.33.0 or newer; see "kind and
-  Kubernetes versions" in docs/cluster-setup.md), and the tap's
-  `yaac-krunkit` on macOS/arm64. It fetches the same tarball as
+  Kubernetes versions" in docs/cluster-setup.md), and `krunkit` on
+  macOS/arm64, which runs the podman machine (see "macOS: the podman
+  machine" there). It fetches the same tarball as
   `yaac-server` only so the two share a version, and `brew upgrade` carries
   a change to its dependencies with each release.
-- **`Formula/yaac-libkrun.rb`** (temporary) is upstream libkrun v1.19.4 plus a
-  one-line backport (upstream d33afa5) that forces `LinuxComplete` virtiofs
-  semantics. krunkit 1.3.x always asks for `Simplified`, and podman cannot
-  override it. `Simplified` reports the accessing process as every file's
-  owner and ignores chown. That breaks hostPath writes from gVisor workspace
-  pods: the runsc gofer sees files as root-owned and denies the workspace
-  uid. `LinuxComplete` reports real host ownership (see
-  [yaac#27](https://github.com/bsklaroff/yaac/issues/27)). The upstream fix
-  needs libkrun 2.0, whose C API krunkit 1.3.x cannot load. Keg-only;
-  `yaac-krunkit` uses it through its opt path.
-- **`Formula/yaac-krunkit.rb`** (temporary) is upstream krunkit v1.3.2 built against
-  `yaac-libkrun`'s full opt path, so the bare name `libkrun` appears nowhere.
-  That avoids "found in multiple taps" errors and link races with the
-  `libkrun/krun` tap. It conflicts with upstream `krunkit` (same `bin/krunkit`
-  and firmware paths). To switch from an install that used the `libkrun/krun`
-  tap's krunkit: `brew uninstall --ignore-dependencies krunkit libkrun`, then
-  `brew install bsklaroff/yaac/yaac-krunkit`.
 
-  To check ownership without a cluster, run
-  `podman run --rm --user 12345 -v $HOME:/mnt:ro alpine stat -c %u /mnt`. It
-  prints your real uid (e.g. `501`) with the patched pair and `12345` with
-  stock krunkit.
+A Mac that got `yaac-server` from an older `yaac-desktop`, which depended on
+it, has it recorded as a dependency only. Once the tap carries a cask without
+that dependency, Homebrew's autoremove (run by `brew uninstall`, a bare
+`brew cleanup`, and the periodic cleanup after an upgrade) deletes it unless
+`yaac-cluster` is installed. Keep it by marking it requested:
 
-Delete both temporary formulas, and point `yaac-cluster.rb` back at
-`libkrun/krun/krunkit`, once krunkit ships against libkrun 2.x, where
-`LinuxComplete` is the default.
+```sh
+brew tab --installed-on-request yaac-server
+```
+
+A Mac may still have the tap's retired `yaac-krunkit` and `yaac-libkrun`
+installed, with their dependencies from the `libkrun/krun` tap.
+`yaac cluster install` works with that `krunkit` too. To move onto
+Homebrew's own:
+
+```sh
+podman machine stop
+brew uninstall --ignore-dependencies yaac-krunkit yaac-libkrun virglrenderer-krun libkrun/krun/libkrunfw
+brew install krunkit
+brew untap libkrun/krun
+yaac cluster install
+```
 
 ## Release flow
 
@@ -114,11 +113,17 @@ Delete both temporary formulas, and point `yaac-cluster.rb` back at
    ```
 
    It prints the `.dmg` path and its `sha256`.
-4. Upload the `.dmg` to a `v<VERSION>` GitHub Release:
+4. Upload the `.dmg` to a `v<VERSION>` GitHub Release, with notes saying
+   anything an existing install must do by hand:
 
    ```sh
-   gh release create v<VERSION> packages/desktop/dist-app/yaac-<VERSION>-arm64.dmg
+   gh release create v<VERSION> packages/desktop/dist-app/yaac-<VERSION>-arm64.dmg \
+     --notes "<notes>"
    ```
+
+   The first release whose cask has no `yaac-server` dependency must tell
+   cask users to run `brew tab --installed-on-request yaac-server` (see
+   above), since nothing else reaches them before autoremove does.
 
 5. Mirror this directory into the `bsklaroff/homebrew-yaac` repo (deleting
    packages removed here, so retired ones stop being installable), fill in
