@@ -37,7 +37,7 @@ replaced by the next newer tap version or removed by `brew uninstall --cask`.
 
 ## Packages
 
-- **`Casks/yaac-desktop.rb`** installs the signed, notarized `yaac.app` from
+- **`Casks/yaac-desktop.rb`** installs the signed, notarized `Yaac.app` from
   the `.dmg` on the `v<version>` GitHub Release. The app runs the
   `yaac-server` formula's CLI for any server on this Mac, so the server code
   has one copy, but the cask does not depend on it (see above). It has no
@@ -112,12 +112,14 @@ yaac cluster install
      pnpm desktop:release
    ```
 
-   It prints the `.dmg` path and its `sha256`.
-4. Upload the `.dmg` to a `v<VERSION>` GitHub Release, with notes saying
+   It builds the `.dmg` and, on the same Mac, the desktop app's Linux
+   `.deb`s and Windows installers for x64 and arm64, and prints each
+   artifact's path and `sha256`.
+4. Upload them to a `v<VERSION>` GitHub Release, with notes saying
    anything an existing install must do by hand:
 
    ```sh
-   gh release create v<VERSION> packages/desktop/dist-app/yaac-<VERSION>-arm64.dmg \
+   gh release create v<VERSION> packages/desktop/dist-app/*.{dmg,deb,exe} \
      --notes "<notes>"
    ```
 

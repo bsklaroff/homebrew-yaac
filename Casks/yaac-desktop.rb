@@ -6,12 +6,12 @@
 # set up a server here.
 # No auto_updates: the app has no updater, and `brew upgrade` moves it.
 cask "yaac-desktop" do
-  version "0.1.3"
+  version "0.1.4"
   # Printed by `pnpm desktop:release`; recompute with shasum -a 256 <dmg>
-  sha256 "d50087e006da3d81059d161ba1c6e5d7e6a51d679150ed7204fd0a15da84cb68"
+  sha256 "99df649ed39625f924dff5ce077ca270ca90c87b397ed03bb9c38df0873558da"
 
   url "https://github.com/bsklaroff/yaac/releases/download/v#{version}/yaac-#{version}-arm64.dmg"
-  name "yaac"
+  name "Yaac"
   desc "Desktop app for the yaac agent sandbox manager"
   homepage "https://github.com/bsklaroff/yaac"
 
@@ -22,7 +22,7 @@ cask "yaac-desktop" do
 
   depends_on arch: :arm64
 
-  app "yaac.app"
+  app "Yaac.app"
 
   # Not ~/.yaac-server, ~/.yaac-cluster or ~/.yaac-client: those are the servers'
   # data and their registration, which the formula's CLI owns.
