@@ -6,9 +6,9 @@
 # set up a server here.
 # No auto_updates: the app has no updater, and `brew upgrade` moves it.
 cask "yaac-desktop" do
-  version "0.1.4"
+  version "0.1.5"
   # Printed by `pnpm desktop:release`; recompute with shasum -a 256 <dmg>
-  sha256 "99df649ed39625f924dff5ce077ca270ca90c87b397ed03bb9c38df0873558da"
+  sha256 "4b3bef4a3afd422be198bbf9221a89f4c11f0ba1d9044d148566eaf5265198c0"
 
   url "https://github.com/bsklaroff/yaac/releases/download/v#{version}/yaac-#{version}-arm64.dmg"
   name "Yaac"
